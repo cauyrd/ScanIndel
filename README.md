@@ -1,6 +1,6 @@
 Introduction
 ------------
-BBF pipeline find small polymorphisms, specially indels, SNPs or MNPs for cancer requencing samples. BBF is named by the first letter of three major software: **B**wa, **B**lat and **F**reebayes used.
+BBF pipeline find small polymorphisms, specially indels, SNPs or MNPs for cancer requencing samples. BBF is named by the first letter of three major software: <strong>B</strong>wa, <strong>B</strong>lat and <strong>F</strong>reebayes used.
 
 Pre-installtalation
 -------------------
