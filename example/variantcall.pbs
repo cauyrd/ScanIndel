@@ -1,0 +1,13 @@
+#!/bin/bash -l
+#PBS -l walltime=48:00:00,nodes=1:ppn=8,mem=8gb
+#PBS -m abe
+#PBS -M yang4414@umn.edu
+
+# load modules
+module load samtools
+module load bamtools
+module load igv
+module load blat
+module load bwa
+cd $PBS_O_WORKDIR
+python ../bbf.py 1>output.log 2>error.log

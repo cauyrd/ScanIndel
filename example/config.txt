@@ -1,0 +1,4 @@
+#name=path
+bwa=/panfs/roc/rissdb/genomes/Homo_sapiens/hg19/bwa/hg19.fa
+blat=/panfs/roc/rissdb/genomes/Homo_sapiens/hg19/ucsc/
+freebayes=/panfs/roc/rissdb/genomes/Homo_sapiens/hg19/seq/hg19.fa

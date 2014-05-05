@@ -1,0 +1,2 @@
+#sample	read1_fastq	read2_fastq
+CRL-2826_S47	/home/msistaff/yang4414/project/nelsona/rawdata/CRL-2868_S47_L001_R1_001.fastq.gz	/home/msistaff/yang4414/project/nelsona/rawdata/CRL-2868_S47_L001_R2_001.fastq.gz
