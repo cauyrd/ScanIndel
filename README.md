@@ -5,6 +5,9 @@ BBF pipeline find small polymorphisms, specially indels, SNPs or MNPs for cancer
 Pre-installtalation
 -------------------
 Python Packages:
+* pysam (https://code.google.com/p/pysam/)
+
+Other Softwares:
 * samtools (http://samtools.sourceforge.net/)
 * bamtools (https://github.com/pezmaster31/bamtools)
 * IGV (https://www.broadinstitute.org/igv/home)
