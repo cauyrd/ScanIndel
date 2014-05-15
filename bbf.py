@@ -81,10 +81,7 @@ def main():
 		os.system('python '+path+'/script/bwa2blat.py '+reference['blat']+' '+each+'.sorted.bam')
 
 		print "Freebayes variant calling"
-		os.system('freebayes -f '+reference['freebayes']+' '+each+'.sorted.bam.blat.bam >'+each+'.freebayes.raw.vcf')
-		os.system('igvtools sort '+each+'.freebayes.raw.vcf '+each+'.freebayes.blat.sorted.vcf')
-		os.system('igvtools index '+each+'.freebayes.blat.sorted.vcf')
-		os.remove(each+'.freebayes.raw.vcf')
+		os.system('freebayes -f '+reference['freebayes']+' '+each+'.sorted.bam.blat.bam >'+each+'.bbf.vcf')
 	print "Cleanup sever"
 	os.system('gfServer stop localhost 50000')
 	print "BBF finish running: "+strftime("%Y-%m-%d %H:%M:%S")
