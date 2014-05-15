@@ -10,7 +10,6 @@ Python Packages:
 Other Softwares:
 * samtools (http://samtools.sourceforge.net/)
 * bamtools (https://github.com/pezmaster31/bamtools)
-* IGV (https://www.broadinstitute.org/igv/home)
 * BWA (http://bio-bwa.sourceforge.net/) 
 * BLAT (http://genome.ucsc.edu/FAQ/FAQblat.html)
 * freebayes (https://github.com/ekg/freebayes)
