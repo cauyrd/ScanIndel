@@ -5,9 +5,8 @@
 
 # load modules
 module load samtools
-module load bamtools
-module load igv
 module load blat
 module load bwa
+module load bedtools
 cd $PBS_O_WORKDIR
-python ../bbf.py 1>output.log 2>error.log
+python ../ScanIndel.py 1>output.log 2>error.log
