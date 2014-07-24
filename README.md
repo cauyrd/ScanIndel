@@ -18,14 +18,23 @@ All softwares above are assumed to be installed in your searching path. Ask your
 Running SVfinder
 ----------------
 ### command-line usage
-	python ScanIndel.py sample.txt(optional) config.txt(optional)
+	python ScanIndel.py -i sample.txt -c config.txt [options]
 #### Options:
-	sample.txt    :this file contains the name of sample and the name of input raw read files (default name is sample.txt)
-	config.txt    :this file contains the path of reference file for each BWA, BLAT and Freebayes (default name is config.txt)
+	sample.txt    	:this file contains the name of sample and the name of input raw read files (default name is sample.txt)
+	config.txt    	:this file contains the path of reference file for each BWA, BLAT and Freebayes (default name is config.txt)
+	 -f				:min-alternate-fraction for FreeBayes (default 0.2)
+	 -s  			:softclipping percentage triggering BLAT re-alignment (default 0.2)
+	 -l  			:minmal length of indels to be included in final output (default 4)
+	 -v  			:minmal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)
+	 -h  			:produce this menu
 
 Output
 -------------
-The output files include the VCF file for detected variant and BAM files for BWA and BLAT mapping (\*.blat.bam).
+The output files include the VCF file for detected variant and BAM files for BWA-MEM and BLAT mapping. 
+    *.indels.exon.vcf	:VCF file includes the indels in targeted exonic regions
+	*.others.exon.vcf	:VCF file includes snp, mnp and complex events in targeted exonic regions
+	*.sorted.bam		:BAM file from BWA-MEM
+	*.sorted.bam.blat.bam : BAM file after BLAT re-aligning soft-clipped reads in BWA-MEM bam file
 
 Example
 -------------

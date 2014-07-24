@@ -4,7 +4,7 @@
 #
 #         FILE: bwa2blat.py
 #
-#        USAGE: ./bwa2blat.py blatDir input.bam output.bam(optional)
+#        USAGE: ./bwa2blat.py blatDir input.bam softclip_ratio(optional)
 #
 #  DESCRIPTION: the program is used to revise the CIGAR string with soft clip in BWA using BLAT mapping 
 #
@@ -14,9 +14,9 @@
 #        NOTES: need to set the path for BLAT, psl2sam.pl before running
 #       AUTHOR: Rendong Yang (cauyrd@gmail.com), 
 # ORGANIZATION: 
-#      VERSION: 1.0
+#      VERSION: 1.1
 #      CREATED: Wed Apr 30 13:27:17 CDT 2014
-#     REVISION: ---
+#     REVISION: Wed Jul 23 17:09:54 CDT 2014
 #===============================================================================
 import sys
 import os
@@ -26,17 +26,19 @@ import pysam
 
 path = os.path.dirname(os.path.realpath(__file__))
 bwa_bam = pysam.Samfile(sys.argv[2],'rb')
-if len(sys.argv) > 3:
-	blat_bam = pysam.Samfile(sys.argv[3],'wb', template=bwa_bam)
-else:
-	blat_bam = pysam.Samfile(sys.argv[2]+'.blat.bam', 'wb', template=bwa_bam)
+#blat_bam = pysam.Samfile(sys.argv[3],'wb', template=bwa_bam)
+blat_bam = pysam.Samfile(sys.argv[2]+'.blat.bam', 'wb', template=bwa_bam)
+try:
+	cutoff = float(sys.argv[3])
+except:
+	cutoff = 0.2
 
 for read in bwa_bam.fetch():
 	rlen = read.qlen
 	if not read.cigar:
 		continue
 	for each in read.cigar:
-		if each[0] == 4 and each[1]/float(rlen) >= 0.2:
+		if each[0] == 4 and each[1]/float(rlen) >= cutoff:
 
 			# generating fasta file
 			fa = open('temp.fa','w')
