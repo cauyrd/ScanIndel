@@ -1,10 +1,10 @@
 ##fileformat=VCFv4.1
-##fileDate=20140616
+##fileDate=20140724
 ##source=freeBayes v0.9.14-8-g1618f7e
 ##reference=/panfs/roc/rissdb/genomes/Homo_sapiens/hg19/seq/hg19.fa
 ##phasing=none
-##commandline="freebayes -F 0.005 -f /panfs/roc/rissdb/genomes/Homo_sapiens/hg19/seq/hg19.fa CRL-2868_S47.sorted.bam.blat.bam"
-##filter="( LEN > 4 & TYPE = ins ) | ( LEN > 4 & TYPE = del )"
+##commandline="freebayes --pooled-discrete -F 0.005 -f /panfs/roc/rissdb/genomes/Homo_sapiens/hg19/seq/hg19.fa CRL-2868_S47.sorted.bam.blat.bam"
+##filter="( LEN > 3 & TYPE = ins ) | ( LEN > 3 & TYPE = del )"
 ##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">
 ##INFO=<ID=DPB,Number=1,Type=Float,Description="Total read depth per bp at the locus; bases in reads overlapping / bases in haplotype">

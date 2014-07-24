@@ -9,4 +9,4 @@ module load blat
 module load bwa
 module load bedtools
 cd $PBS_O_WORKDIR
-python ../ScanIndel.py 1>output.log 2>error.log
+python ../ScanIndel.py -f 0.005
