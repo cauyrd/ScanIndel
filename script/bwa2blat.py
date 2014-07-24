@@ -26,7 +26,6 @@ import pysam
 
 path = os.path.dirname(os.path.realpath(__file__))
 bwa_bam = pysam.Samfile(sys.argv[2],'rb')
-#blat_bam = pysam.Samfile(sys.argv[3],'wb', template=bwa_bam)
 blat_bam = pysam.Samfile(sys.argv[2]+'.blat.bam', 'wb', template=bwa_bam)
 try:
 	cutoff = float(sys.argv[3])
