@@ -30,6 +30,7 @@ Running SVfinder
 	config.txt    	:this file contains the path of reference file for each BWA, BLAT and Freebayes (default name is config.txt)
 #### Output:
 The output files include the VCF file for detected variant and BAM files for BWA-MEM and BLAT mapping.
+
 	*.indels.exon.vcf	:VCF file includes the indels in targeted exonic regions
 	*.others.exon.vcf	:VCF file includes snp, mnp and complex events in targeted exonic regions
 	*.sorted.bam		:BAM file from BWA-MEM
