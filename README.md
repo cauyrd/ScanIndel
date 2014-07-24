@@ -2,7 +2,7 @@ Introduction
 ------------
 ScanIndel pipeline find indels by re-align soft clipped reads. ScanIndel workflow: BWA-mem -> BLAT remap softclipped read -> FreeBayes for indel calling.
 
-Pre-installtalation
+Pre-installation
 -------------------
 Softwares:
 * samtools (http://samtools.sourceforge.net/)
