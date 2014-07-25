@@ -103,7 +103,7 @@ def main():
 
 	# timing progrom start
 	start = time()
-	print 'BBF starts running: '+strftime("%Y-%m-%d %H:%M:%S")
+	print 'ScanIndel starts running: '+strftime("%Y-%m-%d %H:%M:%S")
 	sample = read_sample_file(sample_file)
 	reference = read_config_file(config_file)	
 
@@ -153,9 +153,9 @@ def main():
 
 	print "Cleanup sever"
 	os.system('gfServer stop localhost 50000')
-	print "BBF finish running: "+strftime("%Y-%m-%d %H:%M:%S")
+	print "ScanIndel running done: "+strftime("%Y-%m-%d %H:%M:%S")
 	end = time()
-	print 'Programing runing: '+str(end-start)+' seconds.'
+	print 'Programing takes: '+str(end-start)+' seconds.'
 
 if __name__ == '__main__':
 	main()
