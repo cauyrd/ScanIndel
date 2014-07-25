@@ -117,7 +117,7 @@ def main():
 
 	for each in sample:
 		print "Analyzing sample:", each
-		print "Mapping with BWA-mem" 
+		print "STEP1: BWA-MEM start aligning raw reads..." 
 		os.system("bwa mem -t8 "+reference['bwa']+" "+sample[each]+" >"+each+".sam")
 		os.system("samtools view -bS "+each+".sam >"+each+".bam")
 		os.system("samtools sort "+each+".bam "+each+".sorted")
@@ -125,10 +125,10 @@ def main():
 		os.remove(each+".sam")
 		os.remove(each+".bam")
 		
-		print "Blat remapping softclipped reads"
+		print "STEP2: BLAT start re-aligning soft-clipped reads..."
 		os.system('python '+path+'/script/bwa2blat.py '+reference['blat']+' '+each+'.sorted.bam '+str(softclip_ratio))
 
-		print "Freebayes variant calling"
+		print "STEP3: Freebayes start variant calling..."
 		os.system('freebayes --pooled-discrete -F '+str(freebayes_f)+' -f '+reference['freebayes']+' '+each+'.sorted.bam.blat.bam > '+each+'.raw.vcf')
 		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins ) | ( LEN > '+str(indel_len-1)+' & TYPE = del )" '+each+'.raw.vcf >'+each+'.indels.raw.vcf')
 		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del )" '+each+'.raw.vcf >'+each+'.others.raw.vcf')
@@ -155,7 +155,7 @@ def main():
 	os.system('gfServer stop localhost 50000')
 	print "ScanIndel running done: "+strftime("%Y-%m-%d %H:%M:%S")
 	end = time()
-	print 'Programing takes: '+str(end-start)+' seconds.'
+	print 'Analyzing your data takes: '+str(end-start)+' seconds.'
 
 if __name__ == '__main__':
 	main()
