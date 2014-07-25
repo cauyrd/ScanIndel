@@ -19,7 +19,7 @@ Getting Soure Code
 -------------------
 	git clone git://github.com/cauyrd/ScanIndel.git
 	cd ScanIndel
-Running SVfinder
+Running ScanIndel
 ----------------
 ### command-line usage
 	python ScanIndel.py -i sample.txt -c config.txt [options]
