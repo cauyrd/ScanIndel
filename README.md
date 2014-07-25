@@ -15,6 +15,10 @@ Softwares:
 
 All softwares above are assumed to be installed in your searching path. Ask your admistrator for assistance if necessary.
 
+Getting Soure Code
+-------------------
+	git clone git://github.com/cauyrd/ScanIndel.git
+	cd ScanIndel
 Running SVfinder
 ----------------
 ### command-line usage
