@@ -1,9 +1,9 @@
 Introduction
 ------------
-ScanIndel pipeline find indels by re-align soft clipped reads. ScanIndel workflow: BWA-mem -> BLAT remap softclipped read -> FreeBayes for indel calling.
+ScanIndel finds indels (insertions and deletions) smaller than the length of a short read by re-align soft clipped reads. The workflow of ScanIndel is BWA-mem -> BLAT remap softclipped read -> FreeBayes for indel calling. ScanIndel can also be used to detect other small polymorphisms: SNPs (single-nucleotide polymorphisms), MNPs (multi-nucleotide polymorphisms), and complex events (composite insertion and substitution events).
 
 Pre-installation
--------------------
+----------------
 Softwares:
 * samtools (http://samtools.sourceforge.net/)
 * bedtools (https://code.google.com/p/bedtools/)
@@ -16,11 +16,11 @@ Softwares:
 All softwares above are assumed to be installed in your searching path. Ask your admistrator for assistance if necessary.
 
 Getting Soure Code
--------------------
+------------------
 	git clone git://github.com/cauyrd/ScanIndel.git
 	cd ScanIndel
 Running ScanIndel
-----------------
+-----------------
 ### command-line usage
 	python ScanIndel.py -i sample.txt -c config.txt [options]
 #### Options:
@@ -39,7 +39,7 @@ The output files include the VCF file for detected variant and BAM files for BWA
 	*.others.exon.vcf	:VCF file includes snp, mnp and complex events in targeted exonic regions
 	*.sorted.bam		:BAM file from BWA-MEM
 	*.sorted.bam.blat.bam : BAM file after BLAT re-aligning soft-clipped reads in BWA-MEM bam file
-Example
--------------
-The folder example contains the examples of sample.txt and config.txt and VCF output.
+Example Data
+------------
+The folder example contains the examples of sample.txt and config.txt and VCF output by ScanIndel.
 
