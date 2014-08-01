@@ -26,8 +26,9 @@ Running ScanIndel
 #### Options:
 	 -f				:min-alternate-fraction for FreeBayes (default 0.2)
 	 -s  			:softclipping percentage triggering BLAT re-alignment (default 0.2)
-	 -l  			:minmal length of indels to be included in final output (default 4)
-	 -v  			:minmal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)
+	 -l  			:minimal length of indels to be included in final output (default 4)
+	 -v  			:minimal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)
+	 -d  			:minimal sequencing depth to indetify variants (default 20)
 	 -h  			:produce this menu
 #### Input:
 	sample.txt    	:this file contains the name of sample and the name of input raw read files (default name is sample.txt)

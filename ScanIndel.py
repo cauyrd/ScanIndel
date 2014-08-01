@@ -14,9 +14,10 @@
 #        NOTES: ---
 #       AUTHOR: Rendong Yang (cauyrd@gmail.com), 
 # ORGANIZATION: 
-#      VERSION: 1.1
+#      VERSION: 1.1.1
 #      CREATED: Fri May  2 14:37:20 CDT 2014
 #     REVISION: Wed Jul 23 14:11:15 CDT 2014
+#				Thu Jul 31 16:49:09 CDT 2014
 #===============================================================================
 import sys
 import os
@@ -63,8 +64,9 @@ def usage():
 	print 'Opts:'
 	print ' -f  :min-alternate-fraction for FreeBayes (default 0.2)'
 	print ' -s  :softclipping percentage triggering BLAT re-alignment (default 0.2)'
-	print ' -l  :minmal length of indels to be included in final output (default 4)'
-	print ' -v  :minmal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)'
+	print ' -l  :minimal length of indels to be included in final output (default 4)'
+	print ' -v  :minimal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)'
+	print ' -d	:minomal sequencing depth to identify variants (default 20)'
 	print ' -h  :produce this menu'
 
 def main():
@@ -76,8 +78,9 @@ def main():
 	softclip_ratio = 0.2
 	indel_len = 4 
 	vaf_cutoff = 0.1
+	depth = 20
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'i:c:f:s:l:v:h')
+		opts, args = getopt.getopt(sys.argv[1:], 'i:c:f:s:l:v:d:h')
 	except getopt.GetoptError as err:
 		print str(err)
 		usage()
@@ -95,6 +98,8 @@ def main():
 			indel_len = int(a)
 		elif o == '-v':
 			vaf_cutoff = float(a)
+		elif o == '-d':
+			depth = int(a)
 		elif o == '-h':
 			usage()
 			sys.exit(0)
@@ -130,8 +135,8 @@ def main():
 
 		print "STEP3: Freebayes start variant calling..."
 		os.system('freebayes --pooled-discrete -F '+str(freebayes_f)+' -f '+reference['freebayes']+' '+each+'.sorted.bam.blat.bam > '+each+'.raw.vcf')
-		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins ) | ( LEN > '+str(indel_len-1)+' & TYPE = del )" '+each+'.raw.vcf >'+each+'.indels.raw.vcf')
-		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del )" '+each+'.raw.vcf >'+each+'.others.raw.vcf')
+		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = del & DP > '+str(depth)+' )" '+each+'.raw.vcf >'+each+'.indels.raw.vcf')
+		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del ) & DP > '+str(depth)+'" '+each+'.raw.vcf >'+each+'.others.raw.vcf')
 		os.system('intersectBed -a '+each+'.indels.raw.vcf -b '+path+'/bedfile/hg19_coding_exon.bed -wa -header -u >'+each+'.indels.exon.vcf')
 		os.system('intersectBed -a '+each+'.others.raw.vcf -b '+path+'/bedfile/hg19_coding_exon.bed -wa -header -u >'+each+'.others.exon.raw.vcf')
 		os.remove(each+'.raw.vcf')
