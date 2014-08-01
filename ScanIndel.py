@@ -48,12 +48,12 @@ def read_sample_file(filename):
 	return input
 
 def parse_vaf(term):
-	pattern = re.compile('.+AO=(\d+);.+DP=(\d+);.+')
+	pattern = re.compile('.+DP=(\d+);.+RO=(\d+);.+')
 	item = re.match(pattern,term)
 	try:
- 		ratio = float(item.group(1))/float(item.group(2))	
+ 		ratio = 1 - float(item.group(2))/float(item.group(1))	
 	except:
-		print 'multiple event detected!'
+		print 'Parsing DP or RO error, ignoring: ',term
 		return 0
 	return ratio
 
