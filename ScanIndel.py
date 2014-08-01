@@ -17,7 +17,7 @@
 #      VERSION: 1.1.1
 #      CREATED: Fri May  2 14:37:20 CDT 2014
 #     REVISION: Wed Jul 23 14:11:15 CDT 2014
-#				Thu Jul 31 16:49:09 CDT 2014
+#               Thu Jul 31 16:49:09 CDT 2014
 #===============================================================================
 import sys
 import os
@@ -66,7 +66,7 @@ def usage():
 	print ' -s  :softclipping percentage triggering BLAT re-alignment (default 0.2)'
 	print ' -l  :minimal length of indels to be included in final output (default 4)'
 	print ' -v  :minimal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)'
-	print ' -d	:minomal sequencing depth to identify variants (default 20)'
+	print ' -d  :minomal sequencing depth to identify variants (default 20)'
 	print ' -h  :produce this menu'
 
 def main():
