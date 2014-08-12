@@ -57,7 +57,7 @@ def usage():
 	print ' -f  :min-alternate-fraction for FreeBayes (default 0.2)'
 	print ' -s  :softclipping percentage triggering BLAT re-alignment (default 0.2)'
 	print ' -l  :minimal length of indels to be included in final output (default 4)'
-	print ' -d  :minomal sequencing depth to identify variants (default 20)'
+	print ' -d  :minimal sequencing depth to identify variants (default 20)'
 	print ' -t  :limit analysis to targets listed in a provided BED-format file'
 	print ' --bam  :the input file is BAM format'
 	print ' -h --help :produce this menu'
