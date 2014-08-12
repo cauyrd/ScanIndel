@@ -40,9 +40,9 @@ Running ScanIndel
 The output files include the VCF file for detected variant and BAM files for BWA-MEM and BLAT mapping.
 
 	*.indel.vcf	:VCF file includes putative INDELs or complex event (composite indel and substitution events).
-	*.snp.vcf		:VCF file includes putative SNPs
-	*.sorted.bam		:BAM file from BWA-MEM if using FastQ as input
-	*.softclip_realigned.bam : BAM file after BLAT re-aligning soft-clipped reads from BWA-MEM or input BAM file
+	*.snp.vcf	:VCF file includes putative SNPs
+	*.sorted.bam	:BAM file from BWA-MEM if using FastQ as input
+	*.softclip_realigned.bam	:BAM file after BLAT re-aligning soft-clipped reads from BWA-MEM or input BAM file
 Example Data
 ------------
 The folder example contains the examples of sample.txt and config.txt and VCF output by ScanIndel.
