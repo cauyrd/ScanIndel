@@ -9,15 +9,17 @@
 #  DESCRIPTION: Indel detection for targeted NGS data
 #
 #      OPTIONS: ---
-# REQUIREMENTS: bwa, samtools, blat, freebayes, bedtools
+# REQUIREMENTS: See README.md file
 #         BUGS: ---
 #        NOTES: ---
 #       AUTHOR: Rendong Yang (cauyrd@gmail.com), 
 # ORGANIZATION: 
-#      VERSION: 1.1.1
+#      VERSION: 1.3.1
 #      CREATED: Fri May  2 14:37:20 CDT 2014
 #     REVISION: Wed Jul 23 14:11:15 CDT 2014
 #               Thu Jul 31 16:49:09 CDT 2014
+#               Thu Aug  7 13:20:16 CDT 2014
+#               Fri Aug  8 15:59:04 CDT 2014
 #===============================================================================
 import sys
 import os
@@ -47,16 +49,6 @@ def read_sample_file(filename):
 	ifp.close()
 	return input
 
-def parse_vaf(term):
-	pattern = re.compile('.+DP=(\d+);.+RO=(\d+);.+')
-	item = re.match(pattern,term)
-	try:
- 		ratio = 1 - float(item.group(2))/float(item.group(1))	
-	except:
-		print 'Parsing DP or RO error, ignoring: ',term
-		return 0
-	return ratio
-
 def usage():
 	"""helping information"""
 	print 'Usage:'
@@ -65,9 +57,12 @@ def usage():
 	print ' -f  :min-alternate-fraction for FreeBayes (default 0.2)'
 	print ' -s  :softclipping percentage triggering BLAT re-alignment (default 0.2)'
 	print ' -l  :minimal length of indels to be included in final output (default 4)'
-	print ' -v  :minimal alternate fraction for other type of variants [snp, mnp, complex] except indels (default 0.1)'
 	print ' -d  :minomal sequencing depth to identify variants (default 20)'
-	print ' -h  :produce this menu'
+	print ' -t  :limit analysis to targets listed in a provided BED-format file'
+	print ' --bam  :the input file is BAM format'
+	print ' -h --help :produce this menu'
+	print 'author: Rendong Yang <yang4414@umn.edu>, MSI, University of Minnesota, 2014'
+	print 'version: v1.3.1'
 
 def main():
 
@@ -77,14 +72,16 @@ def main():
 	freebayes_f = 0.2
 	softclip_ratio = 0.2
 	indel_len = 4 
-	vaf_cutoff = 0.1
 	depth = 20
+	bam = False
+	bedfile = ''
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'i:c:f:s:l:v:d:h')
+		opts, args = getopt.getopt(sys.argv[1:], 'i:c:f:s:l:d:t:h', ['bam','help'])
 	except getopt.GetoptError as err:
 		print str(err)
 		usage()
 		sys.exit(2)
+	
 	for o,a in opts:
 		if o == '-i':
 			sample_file = a
@@ -96,11 +93,13 @@ def main():
 			softclip_ratio = float(a)
 		elif o == '-l':
 			indel_len = int(a)
-		elif o == '-v':
-			vaf_cutoff = float(a)
 		elif o == '-d':
 			depth = int(a)
-		elif o == '-h':
+		elif o == '-t':
+			bedfile = a
+		elif o == '--bam':
+			bam = True
+		elif o in ('-h', '--help'):
 			usage()
 			sys.exit(0)
 		else:
@@ -122,39 +121,33 @@ def main():
 
 	for each in sample:
 		print "Analyzing sample:", each
-		print "STEP1: BWA-MEM start aligning raw reads..." 
-		os.system("bwa mem -t8 "+reference['bwa']+" "+sample[each]+" >"+each+".sam")
-		os.system("samtools view -bS "+each+".sam >"+each+".bam")
-		os.system("samtools sort "+each+".bam "+each+".sorted")
-		os.system("samtools index "+each+".sorted.bam")
-		os.remove(each+".sam")
-		os.remove(each+".bam")
-		
-		print "STEP2: BLAT start re-aligning soft-clipped reads..."
-		os.system('python '+path+'/script/bwa2blat.py '+reference['blat']+' '+each+'.sorted.bam '+str(softclip_ratio))
+		if not bam:
+			print "BWA-MEM start aligning raw reads..." 
+			os.system("bwa mem -t8 "+reference['bwa']+" "+sample[each]+" >"+each+".sam")
+			os.system("samtools view -bS "+each+".sam >"+each+".bam")
+			os.system("samtools sort "+each+".bam "+each+".sorted")
+			os.system("samtools index "+each+".sorted.bam")
+			os.remove(each+".sam")
+			os.remove(each+".bam")
+			blat_input = each+'.sorted.bam'
+		else:
+			blat_input = sample[each]
 
-		print "STEP3: Freebayes start variant calling..."
-		os.system('freebayes --pooled-discrete -F '+str(freebayes_f)+' -f '+reference['freebayes']+' '+each+'.sorted.bam.blat.bam > '+each+'.raw.vcf')
-		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = del & DP > '+str(depth)+' )" '+each+'.raw.vcf >'+each+'.indels.raw.vcf')
-		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del ) & DP > '+str(depth)+'" '+each+'.raw.vcf >'+each+'.others.raw.vcf')
-		os.system('intersectBed -a '+each+'.indels.raw.vcf -b '+path+'/bedfile/hg19_coding_exon.bed -wa -header -u >'+each+'.indels.exon.vcf')
-		os.system('intersectBed -a '+each+'.others.raw.vcf -b '+path+'/bedfile/hg19_coding_exon.bed -wa -header -u >'+each+'.others.exon.raw.vcf')
+		print "BLAT start re-aligning soft-clipped reads..."
+		os.system('python '+path+'/script/bwa2blat.py '+reference['blat']+' '+blat_input+' '+str(softclip_ratio)+' > '+each+'.softclip_realigned.bam')
+
+		print "Freebayes start variant calling..."
+		os.system('freebayes -F '+str(freebayes_f)+' -f '+reference['freebayes']+' '+each+'.softclip_realigned.bam | vcfallelicprimitives -k -g | vt normalize -r '+reference['freebayes']+' - > '+each+'.raw.vcf')
+		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = del & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = complex & DP > '+str(depth)+' )" '+each+'.raw.vcf >'+each+'.indel.vcf')
+		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del ) & ! ( TYPE = complex ) & DP > '+str(depth)+'" '+each+'.raw.vcf >'+each+'.snp.vcf')
 		os.remove(each+'.raw.vcf')
-		os.remove(each+'.indels.raw.vcf')
-		os.remove(each+'.others.raw.vcf')
-		
-		# post filtering SNP,MNP and complex variants based on calculated VAF.
-		ifp = open(each+'.others.exon.raw.vcf')
-		ofp = open(each+'.others.exon.vcf','w')
-		for line in ifp:
-			if line[0] == '#':
-				print >> ofp, line.rstrip()
-			else:
-				if parse_vaf(line.rstrip()) >= vaf_cutoff:
-					print >> ofp, line.rstrip()
-		ifp.close()
-		ofp.close()
-		os.remove(each+'.others.exon.raw.vcf')
+
+		# filtering variants in regions listed in a BED file if provided by -t parameter.
+		if bedfile:
+			os.system('intersectBed -a '+each+'.indel.vcf -b '+bedfile+' -wa -header -u >'+each+'.indel.filter.vcf')
+			os.system('intersectBed -a '+each+'.snp.vcf -b '+bedfile+' -wa -header -u >'+each+'.snp.filter.vcf')
+			os.system('mv '+each+'.indel.filter.vcf '+each+'.indel.vcf')
+			os.system('mv '+each+'.snp.filter.vcf '+each+'.snp.vcf')
 
 	print "Cleanup sever"
 	os.system('gfServer stop localhost 50000')

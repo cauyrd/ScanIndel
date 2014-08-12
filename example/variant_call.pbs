@@ -8,5 +8,6 @@ module load samtools
 module load blat
 module load bwa
 module load bedtools
+module load gcc/4.8.1
 cd $PBS_O_WORKDIR
-python ../ScanIndel.py -f 0.005
+python ../ScanIndel.py -f 0.005 -d 500 -l 2 -t hg19_coding_exon.bed

@@ -14,9 +14,10 @@
 #        NOTES: need to set the path for BLAT, psl2sam.pl before running
 #       AUTHOR: Rendong Yang (cauyrd@gmail.com), 
 # ORGANIZATION: 
-#      VERSION: 1.1
+#      VERSION: 1.2
 #      CREATED: Wed Apr 30 13:27:17 CDT 2014
 #     REVISION: Wed Jul 23 17:09:54 CDT 2014
+#               Tue Aug 12 09:42:59 CDT 2014
 #===============================================================================
 import sys
 import os
@@ -26,7 +27,9 @@ import pysam
 
 path = os.path.dirname(os.path.realpath(__file__))
 bwa_bam = pysam.Samfile(sys.argv[2],'rb')
-blat_bam = pysam.Samfile(sys.argv[2]+'.blat.bam', 'wb', template=bwa_bam)
+#blat_bam = pysam.Samfile(sys.argv[2]+'.blat.bam', 'wb', template=bwa_bam)
+blat_bam = pysam.Samfile('-', 'wb', template=bwa_bam)
+
 try:
 	cutoff = float(sys.argv[3])
 except:
