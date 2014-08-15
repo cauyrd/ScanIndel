@@ -14,8 +14,9 @@ Softwares:
 * vt (https://github.com/atks/vt)
 * pysam python package (https://code.google.com/p/pysam/)
 
-All softwares above are assumed to be installed in your searching path. Ask your admistrator for assistance if necessary. 
-__Note__: if using BAM file as input, BWA and SAMtools are not required for running ScanIndel
+All softwares above are assumed to be installed in your searching path. Ask your admistrator for assistance if necessary.
+
+__Note__: if using BAM file as input, BWA is not required for running ScanIndel
 
 Getting Soure Code
 ------------------
