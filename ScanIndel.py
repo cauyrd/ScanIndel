@@ -132,6 +132,7 @@ def main():
 			blat_input = each+'.sorted.bam'
 		else:
 			blat_input = sample[each]
+			os.system('samtools index '+blat_input)
 
 		print "BLAT start re-aligning soft-clipped reads..."
 		os.system('python '+path+'/script/bwa2blat.py '+reference['blat']+' '+blat_input+' '+str(softclip_ratio)+' > '+each+'.softclip_realigned.bam')
