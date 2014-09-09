@@ -139,8 +139,8 @@ def main():
 
 		print "Freebayes start variant calling..."
 		os.system('freebayes -F '+str(freebayes_f)+' -f '+reference['freebayes']+' '+each+'.softclip_realigned.bam | vcfallelicprimitives -k -g | vt normalize -r '+reference['freebayes']+' - > '+each+'.raw.vcf')
-		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = del & DP > '+str(depth)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = complex & DP > '+str(depth)+' )" '+each+'.raw.vcf >'+each+'.indel.vcf')
-		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del ) & ! ( TYPE = complex ) & DP > '+str(depth)+'" '+each+'.raw.vcf >'+each+'.snp.vcf')
+		os.system('vcffilter -f "( LEN > '+str(indel_len-1)+' & TYPE = ins & DP > '+str(depth-1)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = del & DP > '+str(depth-1)+' ) | ( LEN > '+str(indel_len-1)+' & TYPE = complex & DP > '+str(depth-1)+' )" '+each+'.raw.vcf >'+each+'.indel.vcf')
+		os.system('vcffilter -f "! ( TYPE = ins ) & ! ( TYPE = del ) & ! ( TYPE = complex ) & DP > '+str(depth-1)+'" '+each+'.raw.vcf >'+each+'.snp.vcf')
 		os.remove(each+'.raw.vcf')
 
 		# filtering variants in regions listed in a BED file if provided by -t parameter.
