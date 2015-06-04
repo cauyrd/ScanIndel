@@ -1,2 +1,0 @@
-#sample	read1_fastq	read2_fastq
-CRL-2868_S47	CRL-2868_S47_L001_R1_001.fastq.gz	CRL-2868_S47_L001_R2_001.fastq.gz
