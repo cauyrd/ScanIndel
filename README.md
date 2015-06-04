@@ -34,21 +34,21 @@ Running ScanIndel
 	 -s				:softclipping percentage triggering BLAT re-alignment (default 0.2)
 	 -t				:setting -t for FreeBayes to provide a BED-format file limiting the analysis to these regions
 	 --min_percent_hq		:min percentage of high quality base in soft clipping reads (default 0.8)
-	--lowqual_cutoff		:low quality cutoff value (default 20)
-	--mapq_cutoff		:low mapping quality cutoff (default 1)
-	--hetero_factor		:The factor about the indel heterogenirity and heterozygosity (default 0.1)
-	 --bam 			:the input file is BAM format
+	 --lowqual_cutoff		:low quality cutoff value (default 20)
+	 --mapq_cutoff			:low mapping quality cutoff (default 1)
+	 --hetero_factor		:The factor about the indel heterogenirity and heterozygosity (default 0.1)
+	 --bam 				:the input file is BAM format
 	 --rmdup			:exccute duplicate removal step before realignment
-	 -h --help		:produce this menu
-	 -v --version	:show version of this tool
+	 -h --help			:produce this menu
+	 -v --version			:show version of this tool
 #### Input:
-	sample.txt    	:this file contains the listed samples to be analyzed (one per line), the input can be raw read FastQ file or aligned BAM file and use --bam when running (default name is sample.txt)
-	config.txt    	:this file contains the path of reference file for each BWA, BLAT and Freebayes (default name is config.txt)
+	sample.txt    			:this file contains the listed samples to be analyzed (one per line), the input can be raw read FastQ file or aligned BAM file and use --bam when running (default name is sample.txt)
+	config.txt    			:this file contains the path of reference file for each BWA, BLAT and Freebayes (default name is config.txt)
 #### Output:
 The output files include the VCF file for detected variant and BAM files for BWA-MEM and BLAT mapping.
 
 	*.reads.bam		:BAM file for read after blat alignment.
-	*.contigs.bam : BAM file for de novo assembled contigs after BWA and BLAT mapping.
+	*.contigs.bam 		:BAM file for de novo assembled contigs after BWA and BLAT mapping.
 	*.mapping.indel.vcf	:VCF file includes putative INDELs from softclipping read re-alignment.
 	*.assembly.indel.vcf	:VCF file includes putative INDELs from de novo assembly.
 	*.merged.indel.vcf	:VCF file that include all putative INDELs by merging the results from *mapping.indel.vcf and *.assembly.indel.vcf
