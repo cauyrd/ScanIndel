@@ -6,7 +6,7 @@ Prerequisites
 ----------------
 Softwares and Python packages:
 * BedTools/2.17.0 (https://github.com/arq5x/bedtools2/releases)
-* SAMtools/0.1.18 (http://samtools.sourceforge.net/)
+* SAMtools/1.0 (http://samtools.sourceforge.net/)
 * BWA/0.7.10 (http://bio-bwa.sourceforge.net/) 
 * BLAT (gfServer and gfClient)/34+ (http://genome.ucsc.edu/FAQ/FAQblat.html)
 * freebayes/0.9.18 (https://github.com/ekg/freebayes)
@@ -52,3 +52,5 @@ The output files include the VCF file for detected variant and BAM files for BWA
 	*.mapping.indel.vcf	:VCF file includes putative INDELs from softclipping read re-alignment.
 	*.assembly.indel.vcf	:VCF file includes putative INDELs from de novo assembly.
 	*.merged.indel.vcf	:VCF file that include all putative INDELs by merging the results from *mapping.indel.vcf and *.assembly.indel.vcf
+#### Example:
+To run a test example, please go to folder 'example' and follow the README file to run test data.

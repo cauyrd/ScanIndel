@@ -1,0 +1,5 @@
+# following the instructions below to run a testing example
+1. Modify input_data/config.txt to add the path of your index file for each tool, the Fastq file is generate from hg19.
+2. Run ./run_scanindel.sh
+3. The example output file are located at output_example
+

@@ -1,1 +1,1 @@
-scanindel	cov10_len100_read1.fq	cov10_len100_read2.fq
+test	test.read1.fq	test.read2.fq
