@@ -156,7 +156,8 @@ def get_softclip_length(read):
 	else:
 		return 0, qual, -1
 
-def prob_of_indel_with_error(alignment, soft_chr, soft_pos, prob):
+def prob_of_indel_with_error(input, soft_chr, soft_pos, prob):
+	alignment = pysam.Samfile(input,'rb')
 	try:
 		reads = [read for read in alignment.fetch(soft_chr, soft_pos - 1, soft_pos + 1)]
 	except ValueError:
@@ -167,7 +168,8 @@ def prob_of_indel_with_error(alignment, soft_chr, soft_pos, prob):
 		if each.is_secondary or each.is_unmapped:
 			continue
 		total += 1
-		if 'S' in each.cigarstring:
+		soft_len, soft_qual, soft_pos_read = get_softclip_length(each)
+		if soft_pos_read == soft_pos:
 			num_soft += 1
 	return binom.sf(num_soft - 1, total, prob)
 
@@ -189,7 +191,10 @@ def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_perc
 			continue
 		soft_len, soft_qual, soft_pos = get_softclip_length(read)
 		sclip_ratio = soft_len / float(read.rlen)
-		sclip_hq_ratio = len(soft_qual[soft_qual >= lowqual_cutoff]) / float(len(soft_qual))
+		if soft_pos != -1:
+			sclip_hq_ratio = len(soft_qual[soft_qual >= lowqual_cutoff]) / float(len(soft_qual))
+		else:
+			sclip_hq_ratio = 0
 		if sclip_ratio >= scliplen_cutoff and sclip_hq_ratio >= min_percent_hq and read.mapq >= mapq_cutoff:
 			blat_aln = False
 			soft_chr = bwa_bam.getrname(read.rname)
@@ -203,7 +208,7 @@ def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_perc
 					blat_bam.write(read)
 					continue
 			# estimate the probability of indels given the coverage and number of soft-clipping readss
-			elif prob_of_indel_with_error(bwa_bam, soft_chr, soft_pos, hetero_factor) < 0.05:
+			elif prob_of_indel_with_error(input, soft_chr, soft_pos, hetero_factor) < 0.05:
 				putative_indel_cluster.add((soft_chr, soft_pos))
 				blat_aln = True
 				print >> denovo, '>' + read.qname
@@ -249,7 +254,6 @@ def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_perc
 
 def remove_assembly_fp(bam, input_vcf, output_vcf, len_cutoff, hetero_factor):
 	"""remove false positives from assembly vcf file based on softclip reads enrichment"""
-	alignment = pysam.Samfile(bam, 'rb')
 	input = vcf.Reader(open(input_vcf))
 	output = vcf.Writer(open(output_vcf, 'w'), input)
 	for record in input:
@@ -258,7 +262,7 @@ def remove_assembly_fp(bam, input_vcf, output_vcf, len_cutoff, hetero_factor):
 		else:
 			chr = record.CHROM
 			pos = record.POS
-			if prob_of_indel_with_error(alignment, chr, pos, hetero_factor) < 0.05:
+			if prob_of_indel_with_error(bam, chr, pos, hetero_factor) < 0.05:
 				output.write_record(record)
 	return
 
@@ -392,8 +396,8 @@ def main():
 			except subprocess.CalledProcessError as e:
 				print >> sys.stderr, "Execution failed for bedtools intersect:", e
 				sys.exit(1)
-			os.system("samtools view -b " + blat_input + " '*' >" + each + ".temp.target.unmap.bam")
-			os.system("samtools merge " + each + ".temp.target.bam " + each + ".temp.target.map.bam " + each + ".temp.target.unmap.bam")
+			os.system("samtools view -b -f 4 " + blat_input + " >" + each + ".temp.target.unmap.bam")
+			os.system("samtools merge -f " + each + ".temp.target.bam " + each + ".temp.target.map.bam " + each + ".temp.target.unmap.bam")
 			os.system("samtools index " + each + ".temp.target.bam")
 			blat_input = each + '.temp.target.bam'
 		if rmdup:
