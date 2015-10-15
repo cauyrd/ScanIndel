@@ -36,6 +36,7 @@ Running ScanIndel
 	 --min_percent_hq		:min percentage of high quality base in soft clipping reads (default 0.8)
 	 --lowqual_cutoff		:low quality cutoff value (default 20)
 	 --mapq_cutoff			:low mapping quality cutoff (default 1)
+	 --blat_ident_pct_cutoff			:Blat sequence identity cutoff (default 0.8)
 	 --hetero_factor		:The factor about the indel heterogenirity and heterozygosity (default 0.1)
 	 --bam 				:the input file is BAM format
 	 --rmdup			:exccute duplicate removal step before realignment

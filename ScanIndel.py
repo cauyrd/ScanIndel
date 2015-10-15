@@ -27,7 +27,7 @@ except: sys.exit('numpy module not found.\nPlease install it before.')
 try: from scipy.stats import binom
 except: sys.exit('scipy module not found.\nPlease install it before.')
 
-__version__ = '1.0'
+__version__ = '1.1'
 
 def read_config_file(filename):
 	path = {}
@@ -57,7 +57,7 @@ def read_gfServer_log(infile):
 		if 'Server ready for queries!' in i:
 			f.close()
 			return 1
-		elif 'gfServer aborted' in i:
+		elif 'gfServer aborted' in i or 'error' in i:
 			f.close()
 			return -1
 	f.close()
@@ -158,27 +158,25 @@ def get_softclip_length(read):
 
 def prob_of_indel_with_error(input, soft_chr, soft_pos, prob):
 	alignment = pysam.Samfile(input,'rb')
+	total = alignment.count(soft_chr,soft_pos,soft_pos+1)
 	try:
-		reads = [read for read in alignment.fetch(soft_chr, soft_pos - 1, soft_pos + 1)]
+		reads = [read for read in alignment.fetch(soft_chr, soft_pos - 1, soft_pos + 2)]
 	except ValueError:
 		reads = [read for read in alignment.fetch(soft_chr, soft_pos, soft_pos + 1)]
-	total = 0
 	num_soft = 0
 	for each in reads:
 		if each.is_secondary or each.is_unmapped:
 			continue
-		total += 1
 		soft_len, soft_qual, soft_pos_read = get_softclip_length(each)
-		if soft_pos_read == soft_pos:
+		if soft_len != 0 and abs(soft_pos_read - soft_pos) < 2: # +/- 1bp matching
 			num_soft += 1
 	return binom.sf(num_soft - 1, total, prob)
 
-def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_percent_hq, mapq_cutoff, hetero_factor, input, output):
+def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, hetero_factor, input, output):
 	bwa_bam = pysam.Samfile(input, 'rb')
 	blat_bam = pysam.Samfile(output + '.temp.bam', 'wb', template=bwa_bam)
 	if hetero_factor != 'a':
 		denovo = open(output+'.temp.fasta', 'w')
-	blat_ident_pct_cutoff = 0.9
 	putative_indel_cluster = set()
 	for read in bwa_bam.fetch(until_eof=True):
 		if read.is_secondary:
@@ -228,7 +226,9 @@ def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_perc
 					sys.exit(1)
 				try:
 					blat = SearchIO.read(output+'.temp.psl', 'blat-psl')
+					print >> sys.stderr, 'Blat aligned read:',read.qname
 				except:
+					print >> sys.stderr, 'No blat hit for read:',read.qname
 					blat_bam.write(read)
 					continue
 				hsps = blat.hsps
@@ -280,6 +280,7 @@ def usage():
 	print ' --min_percent_hq  :min percentage of high quality base in soft clipping reads, default 0.8'
 	print ' --lowqual_cutoff  :low quality cutoff value, default 20'
 	print ' --mapq_cutoff  :low mapping quality cutoff, default 1'
+	print ' --blat_ident_pct_cutoff  :Blat sequence identity cutoff, default 0.8'
 	print ' --hetero_factor  :The factor about the indel\'s heterogenirity and heterozygosity, default 0.1'
 	print ' --bam  :the input file is BAM format'
 	print ' --rmdup  :exccute duplicate removal step before realignment'
@@ -301,7 +302,7 @@ def external_tool_checking():
 			print >> sys.stderr, "Checking for '" + each + "': ERROR - could not find '" + each + "'"
 			print >> sys.stderr, "Exiting."
 			sys.exit(0)
-		print >> sys.stderr, "Checking for '" + each + "': found " + path
+		print "Checking for '" + each + "': found " + path
 
 def main():
 
@@ -321,8 +322,9 @@ def main():
 	lowqual_cutoff = 20
 	hetero_factor = 0.1
 	mapq_cutoff = 1
+	blat_ident_pct_cutoff = 0.8
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'i:p:F:C:s:d:t:h:v', ['min_percent_hq=', 'lowqual_cutoff=', 'hetero_factor=', 'mapq_cutoff=', 'bam', 'rmdup', 'assembly_only', 'mapping_only', 'help', 'version'])
+		opts, args = getopt.getopt(sys.argv[1:], 'i:p:F:C:s:d:t:h:v', ['min_percent_hq=', 'lowqual_cutoff=', 'hetero_factor=', 'mapq_cutoff=', 'blat_ident_pct_cutoff=', 'bam', 'rmdup', 'assembly_only', 'mapping_only', 'help', 'version'])
 		if not opts:
 			print "Please use the -h or --help option to get usage information."
 			sys.exit(0)
@@ -342,6 +344,7 @@ def main():
 		elif o == '--lowqual_cutoff': lowqual_cutoff = int(a)
 		elif o == '--hetero_factor': hetero_factor = float(a)
 		elif o == '--mapq_cutoff': mapq_cutoff = int(a)
+		elif o == '--blat_ident_pct_cutoff': blat_ident_pct_cutoff = float(a)
 		elif o == '--bam': bam = True
 		elif o == '--rmdup': rmdup = True
 		elif o == '--mapping_only': assembly = False
@@ -363,11 +366,11 @@ def main():
 		usage()
 		sys.exit(1)
 
-	print >> sys.stderr, 'ScanIndel starts running: ' + time.strftime("%Y-%m-%d %H:%M:%S")
+	print 'ScanIndel starts running: ' + time.strftime("%Y-%m-%d %H:%M:%S")
 	start = time.time()
 	sample = read_sample_file(sample_file)
 	reference = read_config_file(config_file)
-	print >> sys.stderr, 'Loaded config and sample list'
+	print 'Loaded config and sample list'
 	
 	#check external tools used
 	external_tool_checking()
@@ -376,13 +379,13 @@ def main():
 	start_gfServer(reference['blat'])
 
 	for each in sample:
-		print >> sys.stderr, "Analyzing sample:", each
+		print "Analyzing sample:", each
 		if not bam:
 			bwa_start = time.time()
 			bwa_alignment(reference, sample[each], each + '.temp.bwa.bam')
 			blat_input = each + '.temp.bwa.bam'
 			bwa_end = time.time()
-			print >> sys.stderr, 'BWA [ScanIndel] takes ' + str(bwa_end - bwa_start)+' seconds.'
+			print 'BWA [ScanIndel] takes ' + str(bwa_end - bwa_start)+' seconds.'
 		else:
 			blat_input = sample[each]
 			try:
@@ -413,9 +416,9 @@ def main():
 
 		# extracting candidate soft-clipped reads for realignment and/or assembly
 		blat_start = time.time()
-		readlen = blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, hetero_factor, blat_input, each + '.reads.bam')
+		readlen = blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, hetero_factor, blat_input, each + '.reads.bam')
 		blat_end = time.time()
-		print >> sys.stderr, 'BLAT [ScanIndel] takes ' + str(blat_end - blat_start) + ' seconds.'
+		print 'BLAT [ScanIndel] takes ' + str(blat_end - blat_start) + ' seconds.'
 		
 		if assembly:
 			assembly_start = time.time()
@@ -426,9 +429,9 @@ def main():
 				print >> sys.stderr, "Execution failed for inchworm:", e
 				sys.exit(1)
 			bwa_alignment(reference, each + '.temp.contig', each + '.denovo.temp.bwa.bam')
-			blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, 'a', each+'.denovo.temp.bwa.bam', each + '.contigs.bam')
+			blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, 'a', each+'.denovo.temp.bwa.bam', each + '.contigs.bam')
 			assembly_end = time.time()
-			print >> sys.stderr, 'Assembly [ScanIndel] takes ' + str(assembly_end - assembly_start) + ' seconds.'
+			print 'Assembly [ScanIndel] takes ' + str(assembly_end - assembly_start) + ' seconds.'
 
 		freebayes_start = time.time()
 		try:
@@ -445,13 +448,14 @@ def main():
 			remove_assembly_fp(blat_input, each + '.temp.indel.vcf', each + '.assembly.indel.vcf', readlen * softclip_ratio, hetero_factor)
 			os.system('vcfcombine ' + each + '.mapping.indel.vcf ' + each + '.assembly.indel.vcf > ' + each + '.merged.indel.vcf')
 		freebayes_end = time.time()
-		print >> sys.stderr, 'Freebayes [ScanIndel] takes ' + str(freebayes_end - freebayes_start) + ' seconds.'
+		print 'Freebayes [ScanIndel] takes ' + str(freebayes_end - freebayes_start) + ' seconds.'
 
 	os.system('gfServer stop localhost 50000')
 	os.system('rm *.temp.*')
-	print >> sys.stderr, "ScanIndel running done: " + time.strftime("%Y-%m-%d %H:%M:%S")
+
+	print "ScanIndel running done: " + time.strftime("%Y-%m-%d %H:%M:%S")
 	end = time.time()
-	print >> sys.stderr, 'ScanIndel takes ' + str(end - start) + ' seconds.'
+	print 'ScanIndel takes ' + str(end - start) + ' seconds.'
 
 if __name__ == '__main__':
 	main()
