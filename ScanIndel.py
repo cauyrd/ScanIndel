@@ -446,7 +446,8 @@ def main():
 				print >> sys.stderr, "Execution failed for freebayes in assembly:", e
 				sys.exit(1)
 			remove_assembly_fp(blat_input, each + '.temp.indel.vcf', each + '.assembly.indel.vcf', readlen * softclip_ratio, hetero_factor)
-			os.system('vcfcombine ' + each + '.mapping.indel.vcf ' + each + '.assembly.indel.vcf > ' + each + '.merged.indel.vcf')
+			path = os.path.dirname(os.path.realpath(__file__))
+			os.system('python ' + path + '/tools/vcf-combine.py ' + each + '.mapping.indel.vcf ' + each + '.assembly.indel.vcf | bedtools sort -i stdin -header > ' + each + '.merged.indel.vcf')
 		freebayes_end = time.time()
 		print 'Freebayes [ScanIndel] takes ' + str(freebayes_end - freebayes_start) + ' seconds.'
 

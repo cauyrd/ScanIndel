@@ -11,7 +11,6 @@ Softwares and Python packages:
 * BLAT (gfServer and gfClient)/34+ (http://genome.ucsc.edu/FAQ/FAQblat.html)
 * freebayes/0.9.18 (https://github.com/ekg/freebayes)
 * Inchworm assembler (http://inchworm.sourceforge.net)
-* vcfcombine from vcflib (https://github.com/ekg/vcflib)
 * Python/2.7 (https://www.python.org/)
 * Pysam/0.7.7 (https://code.google.com/p/pysam/)
 * PyVCF/0.6.7 (https://github.com/jamescasbon/PyVCF)
