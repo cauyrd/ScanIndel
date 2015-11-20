@@ -410,8 +410,6 @@ def main():
 				print >> sys.stderr, "Execution failed for samtools rmdup:", e
 				sys.exit(1)
 			os.system("samtools index " + each + ".temp.rmdup.bam")
-			os.remove(blat_input)
-			os.remove(blat_input + ".bai")
 			blat_input = each + '.temp.rmdup.bam'
 
 		# extracting candidate soft-clipped reads for realignment and/or assembly
