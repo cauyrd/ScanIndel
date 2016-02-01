@@ -11,7 +11,7 @@
 #      OPTIONS: ---
 # REQUIREMENTS: See README.md file
 #         BUGS: ---
-#        NOTES: ---
+#        NOTES: add gfServer_port optioin to allow run ScanIndel multiplely at a single machine
 #       AUTHOR: Rendong Yang (yang4414@umn.edu)
 # ORGANIZATION:
 #===============================================================================
@@ -27,7 +27,7 @@ except: sys.exit('numpy module not found.\nPlease install it before.')
 try: from scipy.stats import binom
 except: sys.exit('scipy module not found.\nPlease install it before.')
 
-__version__ = '1.2'
+__version__ = '1.2dev'
 
 def read_config_file(filename):
 	path = {}
@@ -63,12 +63,12 @@ def read_gfServer_log(infile):
 	f.close()
 	return 0
 
-def start_gfServer(reference):
+def start_gfServer(reference,gfServer_port):
 	sys.stderr.write('Starting gfServer\n')
 	cwd = os.getcwd()
 	os.chdir(reference)
 	try:
-		subprocess.check_call('gfServer -canStop -log='+cwd+'/gfserver.temp.log start localhost 50000 *.2bit &', shell=True)
+		subprocess.check_call('gfServer -canStop -log='+cwd+'/gfserver.temp.log start localhost '+gfServer_port+' *.2bit &', shell=True)
 	except subprocess.CalledProcessError as e:
 		print >> sys.stderr, "Execution failed for gfServer:", e
 		sys.exit(1)
@@ -172,7 +172,7 @@ def prob_of_indel_with_error(input, soft_chr, soft_pos, prob):
 			num_soft += 1
 	return binom.sf(num_soft - 1, total, prob)
 
-def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, hetero_factor, input, output):
+def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, gfServer_port, hetero_factor, input, output):
 	bwa_bam = pysam.Samfile(input, 'rb')
 	blat_bam = pysam.Samfile(output + '.temp.bam', 'wb', template=bwa_bam)
 	if hetero_factor != 'a':
@@ -220,7 +220,7 @@ def blat_alignment(mapping, reference, scliplen_cutoff, lowqual_cutoff, min_perc
 				print >> fa, read.seq
 				fa.close()
 				try:
-					subprocess.check_call('gfClient localhost 50000 ' + reference['blat'] + ' ' + output + '.temp.fa ' + output + '.temp.psl >/dev/null 2>&1 ', shell=True)
+					subprocess.check_call('gfClient localhost ' + gfServer_port +' '+ reference['blat'] + ' ' + output + '.temp.fa ' + output + '.temp.psl >/dev/null 2>&1 ', shell=True)
 				except subprocess.CalledProcessError as e:
 					print >> sys.stderr, 'Execution failed for gfClient:', e
 					sys.exit(1)
@@ -281,6 +281,7 @@ def usage():
 	print ' --lowqual_cutoff  :low quality cutoff value, default 20'
 	print ' --mapq_cutoff  :low mapping quality cutoff, default 1'
 	print ' --blat_ident_pct_cutoff  :Blat sequence identity cutoff, default 0.8'
+	print ' --gfServer_port  :gfServer service port number, default 50000'
 	print ' --hetero_factor  :The factor about the indel\'s heterogenirity and heterozygosity, default 0.1'
 	print ' --bam  :the input file is BAM format'
 	print ' --rmdup  :exccute duplicate removal step before realignment'
@@ -323,8 +324,9 @@ def main():
 	hetero_factor = 0.1
 	mapq_cutoff = 1
 	blat_ident_pct_cutoff = 0.8
+	gfServer_port = '50000'
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], 'i:p:F:C:s:d:t:h:v', ['min_percent_hq=', 'lowqual_cutoff=', 'hetero_factor=', 'mapq_cutoff=', 'blat_ident_pct_cutoff=', 'bam', 'rmdup', 'assembly_only', 'mapping_only', 'help', 'version'])
+		opts, args = getopt.getopt(sys.argv[1:], 'i:p:F:C:s:d:t:h:v', ['min_percent_hq=', 'lowqual_cutoff=', 'hetero_factor=', 'mapq_cutoff=', 'blat_ident_pct_cutoff=', 'gfServer_port=', 'bam', 'rmdup', 'assembly_only', 'mapping_only', 'help', 'version'])
 		if not opts:
 			print "Please use the -h or --help option to get usage information."
 			sys.exit(0)
@@ -345,6 +347,7 @@ def main():
 		elif o == '--hetero_factor': hetero_factor = float(a)
 		elif o == '--mapq_cutoff': mapq_cutoff = int(a)
 		elif o == '--blat_ident_pct_cutoff': blat_ident_pct_cutoff = float(a)
+		elif o == '--gfServer_port': gfServer_port = a
 		elif o == '--bam': bam = True
 		elif o == '--rmdup': rmdup = True
 		elif o == '--mapping_only': assembly = False
@@ -376,7 +379,7 @@ def main():
 	external_tool_checking()
 	
 	# start up BLAT server
-	start_gfServer(reference['blat'])
+	start_gfServer(reference['blat'], gfServer_port)
 
 	for each in sample:
 		print "Analyzing sample:", each
@@ -414,7 +417,7 @@ def main():
 
 		# extracting candidate soft-clipped reads for realignment and/or assembly
 		blat_start = time.time()
-		readlen = blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, hetero_factor, blat_input, each + '.reads.bam')
+		readlen = blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, gfServer_port, hetero_factor, blat_input, each + '.reads.bam')
 		blat_end = time.time()
 		print 'BLAT [ScanIndel] takes ' + str(blat_end - blat_start) + ' seconds.'
 		
@@ -427,7 +430,7 @@ def main():
 				print >> sys.stderr, "Execution failed for inchworm:", e
 				sys.exit(1)
 			bwa_alignment(reference, each + '.temp.contig', each + '.denovo.temp.bwa.bam')
-			blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, 'a', each+'.denovo.temp.bwa.bam', each + '.contigs.bam')
+			blat_alignment(mapping, reference, softclip_ratio, lowqual_cutoff, min_percent_hq, mapq_cutoff, blat_ident_pct_cutoff, gfServer_port, 'a', each+'.denovo.temp.bwa.bam', each + '.contigs.bam')
 			assembly_end = time.time()
 			print 'Assembly [ScanIndel] takes ' + str(assembly_end - assembly_start) + ' seconds.'
 
@@ -449,7 +452,7 @@ def main():
 		freebayes_end = time.time()
 		print 'Freebayes [ScanIndel] takes ' + str(freebayes_end - freebayes_start) + ' seconds.'
 
-	os.system('gfServer stop localhost 50000')
+	os.system('gfServer stop localhost '+gfServer_port)
 	os.system('rm *.temp.*')
 
 	print "ScanIndel running done: " + time.strftime("%Y-%m-%d %H:%M:%S")
