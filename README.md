@@ -29,6 +29,7 @@ Running ScanIndel
 	python ScanIndel.py -i sample.txt -p config.txt [options]
 #### Options:
 	 -F							:setting min-alternate-fraction for FreeBayes (default 0.2)
+	 -o							:setting output directory (default ./)
 	 -C							:setting min-alternate-count for FreeBayes (default 2)
 	 -s							:softclipping percentage triggering BLAT re-alignment (default 0.2)
 	 -t							:setting -t for FreeBayes to provide a BED-format file limiting the analysis to these regions
@@ -55,3 +56,5 @@ The output files include the VCF file for detected variant and BAM files for BWA
 	*.merged.indel.vcf			:VCF file that include all putative INDELs by merging the results from *mapping.indel.vcf and *.assembly.indel.vcf
 #### Example:
 To run a test example, please go to folder 'example' and follow the README file to run test data.
+#### Citing ScanIndel:
+Yang, Rendong, et al. "ScanIndel: a hybrid framework for indel detection via gapped alignment, split reads and de novo assembly." *Genome medicine* 7.1 (2015): 1-12.
