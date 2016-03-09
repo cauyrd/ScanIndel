@@ -299,7 +299,7 @@ def usage():
 
 def external_tool_checking():
 	"""checking dependencies are installed"""
-	software = ['bedtools', 'bwa', 'samtools', 'gfServer', 'gfClient', 'freebayes', 'inchworm', 'vcfcombine']
+	software = ['bedtools', 'bwa', 'samtools', 'gfServer', 'gfClient', 'freebayes', 'inchworm']
 	cmd = "which"
 	for each in software:
 		try:
