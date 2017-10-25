@@ -27,7 +27,7 @@ except: sys.exit('numpy module not found.\nPlease install it before.')
 try: from scipy.stats import binom
 except: sys.exit('scipy module not found.\nPlease install it before.')
 
-__version__ = '1.2dev'
+__version__ = '1.3'
 
 def read_config_file(filename):
 	path = {}
