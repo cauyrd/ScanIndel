@@ -6,7 +6,7 @@ Prerequisites
 ----------------
 Softwares and Python packages:
 * BedTools/2.17.0 (https://github.com/arq5x/bedtools2/releases)
-* SAMtools/1.0 (http://samtools.sourceforge.net/)
+* SAMtools/1.0 or less than 1.0 (http://samtools.sourceforge.net/)
 * BWA/0.7.10 (http://bio-bwa.sourceforge.net/) 
 * BLAT (gfServer and gfClient)/34+ (http://genome.ucsc.edu/FAQ/FAQblat.html)
 * freebayes/0.9.18 (https://github.com/ekg/freebayes)
